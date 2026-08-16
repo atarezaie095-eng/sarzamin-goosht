@@ -37,7 +37,10 @@ export const viewport = { themeColor: "#17120f", colorScheme: "light" };
 export default function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl">
-      <body><a className="skip-link" href="#main-content">رفتن به محتوای اصلی</a>{children}</body>
+      <body>
+        <a className="skip-link" href="#main-content">رفتن به محتوای اصلی</a>
+        {children}
+      </body>
     </html>
   );
 }

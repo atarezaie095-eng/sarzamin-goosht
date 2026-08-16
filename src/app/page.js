@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Header from "@/components/Header";
 import Image from "next/image";
 import ProductShowcase from "@/components/ProductShowcase";
+import ProductsSection from "@/components/ProductsSection";
 import MotionController from "@/components/MotionController";
 import { Icon } from "@/components/Icon";
 import { contactLinks, site, whatsappOrderLink } from "@/lib/site";
@@ -17,6 +19,8 @@ const reviews = [
   { name: "علی رضایی", text: "بسته‌بندی تمیز، وزن دقیق و برخورد محترمانه. جوجه‌های طعم‌دار هم خیلی خوشمزه بودند.", date: "خریدار جوجه طعم‌دار" },
   { name: "سارا محمدی", text: "برای خرید روزانه در فاز ۳ بهترین انتخابه. محصولات همیشه تازه‌ان و ارسال هم به‌موقعه.", date: "مشتری همیشگی" },
 ];
+
+export const revalidate = 300;
 
 export default function Home() {
   return (
@@ -78,7 +82,9 @@ export default function Home() {
         </div>
       </section>
 
-      <ProductShowcase />
+      <Suspense fallback={<ProductShowcase loading />}>
+        <ProductsSection />
+      </Suspense>
 
       <section aria-labelledby="offer-title" className="px-5 py-10 sm:px-8 sm:py-12 lg:px-12">
         <div data-reveal className="offer-banner relative mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] bg-[#d9342d] px-7 py-11 text-white shadow-[0_22px_55px_rgba(217,52,45,.18)] md:rounded-[2rem] md:px-14 md:py-14">
