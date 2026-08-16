@@ -1,4 +1,13 @@
+import localFont from "next/font/local";
 import "./globals.css";
+
+const vazirmatn = localFont({
+  src: "./fonts/Vazirmatn-Variable.ttf",
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
+  variable: "--font-vazirmatn",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 const title = "سرزمین گوشت | گوشت تازه و محصولات پروتئینی در اندیشه";
@@ -27,16 +36,16 @@ export const metadata = {
     siteName: "سرزمین گوشت",
     locale: "fa_IR",
     type: "website",
-    ...(siteUrl ? { url: "/", images: [{ url: "/images/hero.jpg", width: 1536, height: 1024, alt: "محصولات تازه سرزمین گوشت" }] } : {}),
+    ...(siteUrl ? { url: "/", images: [{ url: "/images/hero.webp", width: 1536, height: 1024, alt: "محصولات تازه سرزمین گوشت" }] } : {}),
   },
-  twitter: { card: "summary_large_image", title, description, ...(siteUrl ? { images: ["/images/hero.jpg"] } : {}) },
+  twitter: { card: "summary_large_image", title, description, ...(siteUrl ? { images: ["/images/hero.webp"] } : {}) },
 };
 
 export const viewport = { themeColor: "#17120f", colorScheme: "light" };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fa" dir="rtl">
+    <html lang="fa" dir="rtl" className={vazirmatn.variable}>
       <body>
         <a className="skip-link" href="#main-content">رفتن به محتوای اصلی</a>
         {children}

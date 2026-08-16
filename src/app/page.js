@@ -57,7 +57,7 @@ export default function Home() {
 
           <div className="relative order-1 mx-auto w-full max-w-[520px] lg:order-2">
             <div className="hero-image group relative aspect-[4/3.65] overflow-hidden rounded-[2rem] border border-white/10 sm:rounded-[2.5rem] lg:aspect-[4/4.6]">
-              <Image src="/images/hero.jpg" alt="منتخبی از گوشت تازه و باکیفیت سرزمین گوشت" fill preload sizes="(max-width: 1023px) 100vw, 520px" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]" />
+              <Image src="/images/hero.webp" alt="منتخبی از گوشت تازه و باکیفیت سرزمین گوشت" fill preload sizes="(max-width: 1023px) 100vw, 520px" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             </div>
             <div className="absolute -bottom-5 -right-2 flex items-center gap-3 rounded-2xl border border-black/5 bg-white p-3.5 text-[#17120f] shadow-2xl sm:-right-8 sm:p-4">
@@ -102,7 +102,7 @@ export default function Home() {
       <section id="about" aria-labelledby="about-title" className="section-wrap grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <div data-reveal className="relative mx-auto w-full max-w-[550px]">
           <div className="about-image relative aspect-[4/3.6] overflow-hidden rounded-[2rem]">
-            <Image src="/images/store.jpg" alt="فروشگاه سرزمین گوشت در فاز ۳ اندیشه" fill sizes="(max-width: 1023px) 100vw, 550px" className="object-cover" />
+            <Image src="/images/store.webp" alt="فروشگاه سرزمین گوشت در فاز ۳ اندیشه" fill sizes="(max-width: 1023px) 100vw, 550px" className="object-cover" />
           </div>
           <div className="absolute -bottom-5 left-5 rounded-2xl bg-[#17120f] px-6 py-4 text-white shadow-xl sm:-left-5"><strong className="text-3xl text-[#ef4a43]">۵+</strong><span className="mr-2 text-sm">سال همراه شما</span></div>
         </div>

@@ -3,7 +3,7 @@
 :root { --red: #dc3b34; --ink: #181512; --cream: #fffaf5; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 78px; }
-body { margin: 0; background: #fffdf9; color: var(--ink); font-family: Vazirmatn, IRANSansX, "Segoe UI", Tahoma, Arial, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body { margin: 0; background: #fffdf9; color: var(--ink); font-family: var(--font-vazirmatn), "Segoe UI", Tahoma, Arial, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 a, button { -webkit-tap-highlight-color: transparent; }
 button, input { font: inherit; }
 button { cursor: pointer; }
