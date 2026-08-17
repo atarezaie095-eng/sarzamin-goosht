@@ -5,6 +5,7 @@ import { useActionState, useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation";
 import { updateOrderStatus } from "./actions";
 import { useDialogFocus } from "@/lib/use-dialog-focus";
+import { formatKilogramQuantity, isKilogramUnit } from "@/lib/product-quantity";
 
 const currencyFormatter = new Intl.NumberFormat("fa-IR");
 const dateFormatter = new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" });
@@ -110,13 +111,16 @@ function OrderDetails({ order, onClose, onStatusChange }) {
 function OrderItem({ item }) {
   const [imageFailed, setImageFailed] = useState(false);
   const productName = item.product?.name || `محصول حذف‌شده یا نامشخص (#${formatNumber(item.product_id)})`;
+  const quantityLabel = isKilogramUnit(item.product?.unit)
+    ? `${formatKilogramQuantity(item.quantity)} کیلوگرم`
+    : `${formatNumber(item.quantity)} عدد`;
   return (
     <article className="grid gap-4 rounded-2xl border border-zinc-200 p-4 sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-center">
       <div className="relative size-16 overflow-hidden rounded-xl bg-zinc-100">
         {item.product?.image_url && !imageFailed ? <Image src={item.product.image_url} alt="" fill sizes="64px" className="object-cover" onError={() => setImageFailed(true)} /> : <span className="grid h-full place-items-center text-[10px] text-zinc-400">بدون تصویر</span>}
       </div>
-      <div><h4 className="font-bold">{productName}</h4><p className="mt-1 text-xs text-zinc-500">{formatNumber(item.quantity)} عدد × {formatPrice(item.price)}</p></div>
-      <strong className="text-sm text-red-700">{formatPrice(Number(item.price) * Number(item.quantity))}</strong>
+      <div><h4 className="font-bold">{productName}</h4><p className="mt-1 text-xs text-zinc-500">{quantityLabel} × {formatPrice(item.price)}</p></div>
+      <strong className="text-sm text-red-700">{formatPrice(Math.round(Number(item.price) * Number(item.quantity)))}</strong>
     </article>
   );
 }

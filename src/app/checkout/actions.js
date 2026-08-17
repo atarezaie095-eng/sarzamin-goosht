@@ -126,11 +126,13 @@ function normalizeCartItem(item) {
   if (!item || typeof item !== "object" || Array.isArray(item)) return null;
 
   const productId = normalizeProductId(item.id);
-  const quantity = Number(item.quantity);
+  const quantityText = String(item.quantity).trim();
+  if (!/^(?:0|[1-9]\d{0,4})(?:\.\d{1,3})?$/.test(quantityText)) return null;
+  const quantity = Number(quantityText);
   if (
     productId === null ||
-    !Number.isSafeInteger(quantity) ||
-    quantity < 1 ||
+    !Number.isFinite(quantity) ||
+    quantity <= 0 ||
     quantity > MAX_QUANTITY
   ) {
     return null;
@@ -179,6 +181,9 @@ function failure(message) {
 function getOrderErrorMessage(error) {
   if (error?.code === "P0003") {
     return "یکی از محصولات انتخاب‌شده به اتمام رسیده است. لطفاً سبد خرید خود را بررسی کنید.";
+  }
+  if (error?.code === "P0004") {
+    return "حداقل وزن مرغ کامل ۱.۵۰۰ کیلوگرم است.";
   }
   if (error?.code === "42501") {
     return "دسترسی ثبت سفارش عمومی فعال نیست. لطفاً با فروشگاه تماس بگیرید.";

@@ -67,7 +67,7 @@ export async function getAdminOrders(filters = {}) {
     if (productIds.length) {
       const productsResponse = await supabase
         .from("products")
-        .select("id, name, image_url")
+        .select("id, name, image_url, unit")
         .in("id", productIds);
 
       if (productsResponse.error) {

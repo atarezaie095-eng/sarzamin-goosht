@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { submitOrder } from "./actions";
+import { formatKilogramQuantity, isKilogramUnit } from "@/lib/product-quantity";
 
 const numberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -110,8 +111,8 @@ function OrderSummary({ items, totals }) {
       <ul className="mt-4 divide-y divide-black/8">
         {items.map((item) => (
           <li key={item.id} className="flex justify-between gap-4 py-3 text-sm">
-            <span className="min-w-0 text-black/65"><strong className="block truncate text-[#1d1916]">{item.name}</strong>{formatNumber(item.quantity)} × {formatPrice(getEffectiveUnitPrice(item))}</span>
-            <span className="shrink-0 font-bold">{formatPrice(getEffectiveUnitPrice(item) * item.quantity)}</span>
+            <span className="min-w-0 text-black/65"><strong className="block truncate text-[#1d1916]">{item.name}</strong>{formatCheckoutQuantity(item)} × {formatPrice(getEffectiveUnitPrice(item))}</span>
+            <span className="shrink-0 font-bold">{formatPrice(Math.round(getEffectiveUnitPrice(item) * item.quantity))}</span>
           </li>
         ))}
       </ul>
@@ -153,6 +154,12 @@ function formatPrice(value) {
 
 function getEffectiveUnitPrice(item) {
   return Math.round(item.price * (1 - item.discount / 100));
+}
+
+function formatCheckoutQuantity(item) {
+  return isKilogramUnit(item.unit)
+    ? `${formatKilogramQuantity(item.quantity)} کیلوگرم`
+    : `${formatNumber(item.quantity)} عدد`;
 }
 
 function formatOrderId(value) {

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "./Icon";
-import { contactLinks } from "@/lib/site";
 import { useCart } from "@/lib/cart";
 
 const links = [["خانه", "/#home"], ["محصولات", "/#products"], ["درباره ما", "/#about"], ["تماس با ما", "/#contact"]];
@@ -12,6 +11,19 @@ const links = [["خانه", "/#home"], ["محصولات", "/#products"], ["در�
 export default function Header() {
   const [open, setOpen] = useState(false);
   const { itemCount } = useCart();
+
+  function handleOrderNavigation(event) {
+    const contactSection = document.getElementById("contact");
+    if (!contactSection) return;
+
+    event.preventDefault();
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    contactSection.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+
   useEffect(() => {
     const closeOnEscape = (event) => event.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", closeOnEscape);
@@ -46,7 +58,7 @@ export default function Header() {
               </span>
             ) : null}
           </Link>
-          <a href={contactLinks.phone} className="hidden items-center gap-2 rounded-xl bg-[#dc3b34] px-5 py-3 text-sm font-bold transition hover:-translate-y-0.5 hover:bg-[#ef4941] sm:flex"><Icon name="phone" className="size-4" /> ثبت سفارش</a>
+          <Link href="/#contact" onClick={handleOrderNavigation} className="hidden items-center gap-2 rounded-xl bg-[#dc3b34] px-5 py-3 text-sm font-bold transition hover:-translate-y-0.5 hover:bg-[#ef4941] sm:flex"><Icon name="phone" className="size-4" /> ثبت سفارش</Link>
           <button type="button" aria-label={open ? "بستن منو" : "باز کردن منو"} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)} className="grid size-12 place-items-center rounded-xl border border-white/15 transition-colors hover:bg-white/8 md:hidden"><Icon name={open ? "close" : "menu"} /></button>
         </div>
       </div>

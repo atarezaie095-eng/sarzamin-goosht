@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { useCart } from "@/lib/cart";
+import { formatKilogramQuantity, isKilogramUnit } from "@/lib/product-quantity";
 
 const numberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -91,6 +92,7 @@ export default function CartPage() {
 
 function CartItem({ item, onIncrease, onDecrease, onRemove }) {
   const discountedUnitPrice = item.price * (1 - item.discount / 100);
+  const kilogram = isKilogramUnit(item.unit);
   const fallbackImage = "/images/meat.jpg";
   const [imageSource, setImageSource] = useState(item.image_url || fallbackImage);
 
@@ -108,11 +110,13 @@ function CartItem({ item, onIncrease, onDecrease, onRemove }) {
         </div>
       </div>
       <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
-        <div className="flex items-center rounded-xl border border-black/10 bg-[#faf8f5] p-1" aria-label={`تعداد ${item.name}`}>
+        {kilogram ? <p className="rounded-xl border border-black/10 bg-[#faf8f5] px-3 py-2 text-sm font-black" aria-label={`مقدار ${item.name}`}>
+          مقدار: {formatKilogramQuantity(item.quantity)} کیلوگرم
+        </p> : <div className="flex items-center rounded-xl border border-black/10 bg-[#faf8f5] p-1" aria-label={`تعداد ${item.name}`}>
           <button type="button" onClick={() => onIncrease(item.id)} aria-label={`افزایش تعداد ${item.name}`} className="grid size-9 place-items-center rounded-lg text-lg font-bold transition hover:bg-white hover:text-[#dc3b34] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dc3b34]">+</button>
           <span className="min-w-9 text-center text-sm font-black" aria-live="polite">{formatNumber(item.quantity)}</span>
           <button type="button" onClick={() => onDecrease(item.id)} aria-label={`کاهش تعداد ${item.name}`} className="grid size-9 place-items-center rounded-lg text-lg font-bold transition hover:bg-white hover:text-[#dc3b34] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dc3b34]">−</button>
-        </div>
+        </div>}
         <button type="button" onClick={() => onRemove(item.id)} className="min-h-10 px-2 text-xs font-bold text-black/45 transition hover:text-[#b92b25] focus-visible:outline-none focus-visible:underline" aria-label={`حذف ${item.name} از سبد خرید`}>حذف</button>
       </div>
     </article>

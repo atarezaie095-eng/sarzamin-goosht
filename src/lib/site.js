@@ -1,17 +1,23 @@
 export const site = {
-  phoneDisplay: "۰۹۱۲ ۰۰۰ ۰۰۰۰",
-  phone: "+989120000000",
-  whatsappNumber: "989120000000",
-  rubikaUsername: "sarzamingoosht",
-  instagramUsername: "sarzamingoosht",
-  address: "اندیشه، فاز ۳، آدرس فروشگاه",
+  mobileDisplay: "۰۹۱۰۱۵۹۷۹۸۹",
+  mobile: "+989101597989",
+  landlineDisplay: "۰۲۱۶۵۵۷۳۱۰۶ و ۷",
+  landline: "+982165573106",
+  whatsappNumber: "989101597989",
+  rubikaUsername: "09101597989",
+  instagramUsername: "sarzamin_gosht",
+  address: "اندیشه فاز ۳ ـ شهرک صدف ـ خیابان دکتر قریب ـ نرسیده به چهارراه توحید",
+  deliveryArea: "اندیشه فاز ۱ ـ ۳ ـ ۴",
 };
 
 export const contactLinks = {
-  phone: `tel:${site.phone}`,
+  phone: `tel:${site.mobile}`,
+  landline: `tel:${site.landline}`,
   whatsapp: `https://wa.me/${site.whatsappNumber}`,
   rubika: `https://rubika.ir/${site.rubikaUsername}`,
   instagram: `https://instagram.com/${site.instagramUsername}`,
+  map: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.address)}`,
+  mapEmbed: `https://www.google.com/maps?q=${encodeURIComponent(site.address)}&output=embed`,
 };
 
 export function whatsappOrderLink(productName) {

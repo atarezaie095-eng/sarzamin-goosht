@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import {
+  combineQuantities,
+  isKilogramUnit,
+  isWholeChicken,
+  normalizeQuantity,
+} from "./product-quantity";
 
 const CART_STORAGE_KEY = "sarzamin-goosht-cart";
 const EMPTY_CART = [];
 const listeners = new Set();
-const MAX_CART_QUANTITY = Number.MAX_SAFE_INTEGER;
+const MAX_CART_QUANTITY = 10000;
 
 let cartItems = EMPTY_CART;
 let initialized = false;
@@ -79,7 +85,14 @@ function addProduct(product) {
     saveCart(
       cartItems.map((item, index) =>
         index === existingIndex
-          ? { ...item, quantity: incrementQuantity(item.quantity) }
+          ? {
+              ...item,
+              quantity: combineQuantities(
+                item.quantity,
+                normalizedProduct.quantity,
+                isKilogramUnit(item.unit),
+              ),
+            }
           : item,
       ),
     );
@@ -93,7 +106,7 @@ function increaseQuantity(id) {
   initializeCart();
   saveCart(
     cartItems.map((item) =>
-      String(item.id) === String(id)
+      String(item.id) === String(id) && !isKilogramUnit(item.unit)
         ? { ...item, quantity: incrementQuantity(item.quantity) }
         : item,
     ),
@@ -104,6 +117,7 @@ function decreaseQuantity(id) {
   initializeCart();
   const item = cartItems.find((entry) => String(entry.id) === String(id));
   if (!item) return;
+  if (isKilogramUnit(item.unit)) return;
 
   if (item.quantity <= 1) {
     removeProduct(id);
@@ -137,7 +151,10 @@ export function useCart() {
 
   return {
     items,
-    itemCount: items.reduce((total, item) => total + item.quantity, 0),
+    itemCount: items.reduce(
+      (total, item) => total + (isKilogramUnit(item.unit) ? 1 : item.quantity),
+      0,
+    ),
     totals: calculateCartTotals(items),
     addProduct,
     increaseQuantity,
@@ -149,12 +166,12 @@ export function useCart() {
 
 export function calculateCartTotals(items) {
   const subtotal = items.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + Math.round(item.price * item.quantity),
     0,
   );
   const finalTotal = items.reduce(
     (total, item) =>
-      total + getEffectiveUnitPrice(item.price, item.discount) * item.quantity,
+      total + Math.round(getEffectiveUnitPrice(item.price, item.discount) * item.quantity),
     0,
   );
 
@@ -187,21 +204,27 @@ function normalizeProduct(product) {
     discount: clampDiscount(product.discount),
     unit: product.unit ? String(product.unit) : "",
     image_url: normalizeImageUrl(product.image_url),
-    quantity: 1,
+    quantity:
+      normalizeQuantity(product.quantity ?? 1, {
+        kilogram: isKilogramUnit(product.unit),
+        wholeChicken: isWholeChicken(product.name),
+      }) ?? 1,
   };
 }
 
 function normalizeSavedItem(item) {
+  const kilogram = isKilogramUnit(item?.unit);
+  const savedQuantity = normalizeQuantity(item?.quantity, {
+    kilogram,
+    wholeChicken: isWholeChicken(item?.name),
+  });
+  if (savedQuantity === null) return null;
+
   const product = normalizeProduct(item);
   if (!product) return null;
-
-  const quantity = Number(item.quantity);
   return {
     ...product,
-    quantity:
-      Number.isSafeInteger(quantity) && quantity > 0
-        ? Math.min(quantity, MAX_CART_QUANTITY)
-        : 1,
+    quantity: savedQuantity,
   };
 }
 
@@ -221,9 +244,10 @@ function sanitizeSavedCart(value) {
       index === existingIndex
         ? {
             ...entry,
-            quantity: Math.min(
-              entry.quantity + item.quantity,
-              MAX_CART_QUANTITY,
+            quantity: combineQuantities(
+              entry.quantity,
+              item.quantity,
+              isKilogramUnit(entry.unit),
             ),
           }
         : entry,

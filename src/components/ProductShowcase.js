@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { Icon } from "./Icon";
 import ResilientImage from "./ResilientImage";
 import { whatsappOrderLink } from "@/lib/site";
 import { useCart } from "@/lib/cart";
+import { isKilogramUnit, isWholeChicken } from "@/lib/product-quantity";
 
 const filters = ["همه", "گوشت", "مرغ", "سوسیس و کالباس", "جوجه طعم‌دار"];
 const fallbackImages = {
@@ -41,7 +42,7 @@ export default function ProductShowcase({ products = [], error = null, loading =
           <div role="alert" className="mt-8 rounded-2xl border border-red-200 bg-white p-8 text-center text-sm text-red-700">{error}</div>
         ) : visible.length ? (
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {visible.map((product, index) => <ProductCard key={product.id} {...product} index={index} onAdd={addProduct} />)}
+            {visible.map((product, index) => <ProductCard key={`${filter}-${product.id}`} {...product} index={index} enterDelay={Math.min(index, 6) * 60} onAdd={addProduct} />)}
           </div>
         ) : (
           <div className="mt-8 rounded-2xl border border-dashed border-black/15 bg-white p-12 text-center text-sm text-black/45">
@@ -53,15 +54,52 @@ export default function ProductShowcase({ products = [], error = null, loading =
   );
 }
 
-function ProductCard({ id, name, category, description, price, discount, unit, image, image_url, available, index, onAdd }) {
+function ProductCard({ id, name, category, description, price, discount, unit, image, image_url, available, index, enterDelay, onAdd }) {
   const priceDetails = getPriceDetails(price, discount);
   const isAvailable = available !== false;
+  const kilogram = isKilogramUnit(unit);
+  const wholeChicken = isWholeChicken(name);
+  const [weight, setWeight] = useState(wholeChicken ? "1.500" : "1.000");
+  const [weightError, setWeightError] = useState("");
+  const weightErrorId = useId();
   const fallbackImage = fallbackImages[category] || "/images/meat.jpg";
 
-  return <article className="product-card group overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+  function handleAdd() {
+    if (!kilogram) {
+      onAdd({ id, name, price, discount, unit, image_url });
+      return;
+    }
+
+    const normalizedWeight = validateWeight(weight, wholeChicken);
+    if (normalizedWeight.error) {
+      setWeightError(normalizedWeight.error);
+      return;
+    }
+
+    setWeightError("");
+    onAdd({ id, name, price, discount, unit, image_url, quantity: normalizedWeight.value });
+  }
+
+  return <article className="product-card product-filter-enter group overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm" style={{ "--product-enter-delay": `${enterDelay}ms` }}>
     <div className={`product-image relative aspect-[4/3.2] overflow-hidden tone-${index}`}><ResilientImage key={image} src={image} fallbackSrc={fallbackImage} alt={name} fill sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 33vw, 20vw" className="object-cover transition-transform duration-500 group-hover:scale-105" /><span className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold text-black/55">{category}</span>{!isAvailable ? <span className="absolute left-3 top-3 rounded-full bg-[#1d1916]/90 px-3 py-1.5 text-[10px] font-bold text-white">اتمام موجودی</span> : null}</div>
-    <div className="p-5"><h3 className="font-extrabold leading-7">{name}</h3><p className="mt-2 min-h-10 text-xs leading-6 text-black/60">{description || "محصول تازه و باکیفیت"}</p><div className="mt-4 flex items-center justify-between border-t border-black/8 pt-4"><div><span className="block text-[11px] text-black/50">قیمت {unit ? `هر ${unit}` : "محصول"}</span><strong className="mt-0.5 block text-sm text-[#a92520]">{priceDetails.current}</strong>{priceDetails.original && <del className="mt-0.5 block text-[10px] text-black/40">{priceDetails.original}</del>}</div>{isAvailable ? <a href={whatsappOrderLink(name)} target="_blank" rel="noopener noreferrer" aria-label={`سفارش ${name} در واتساپ`} className="grid size-12 place-items-center rounded-xl bg-[#191512] text-white shadow-sm transition-all duration-200 hover:bg-[#db3b34] hover:shadow-md active:scale-95"><Icon name="basket" className="size-5" /></a> : null}</div>{isAvailable ? <button type="button" onClick={() => onAdd({ id, name, price, discount, unit, image_url })} aria-label={`افزودن ${name} به سبد خرید`} className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#dc3b34] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#c8322c] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dc3b34] focus-visible:ring-offset-2 active:translate-y-0"><Icon name="basket" className="size-5" />افزودن به سبد خرید</button> : <button type="button" disabled className="mt-3 flex min-h-11 w-full cursor-not-allowed items-center justify-center rounded-xl bg-zinc-200 px-4 py-2.5 text-sm font-bold text-zinc-500" aria-label={`${name} به اتمام رسیده است`}>اتمام موجودی</button>}</div>
+    <div className="p-5"><h3 className="font-extrabold leading-7">{name}</h3><p className="mt-2 min-h-10 text-xs leading-6 text-black/60">{description || "محصول تازه و باکیفیت"}</p><div className="mt-4 flex items-center justify-between border-t border-black/8 pt-4"><div><span className="block text-[11px] text-black/50">قیمت {unit ? `هر ${unit}` : "محصول"}</span><strong className="mt-0.5 block text-sm text-[#a92520]">{priceDetails.current}</strong>{priceDetails.original && <del className="mt-0.5 block text-[10px] text-black/40">{priceDetails.original}</del>}</div>{isAvailable ? <a href={whatsappOrderLink(name)} target="_blank" rel="noopener noreferrer" aria-label={`سفارش ${name} در واتساپ`} className="grid size-12 place-items-center rounded-xl bg-[#191512] text-white shadow-sm transition-all duration-200 hover:bg-[#db3b34] hover:shadow-md active:scale-95"><Icon name="basket" className="size-5" /></a> : null}</div>{isAvailable && kilogram ? <label className="mt-3 block text-xs font-bold text-black/65">مقدار دلخواه را وارد کنید<span className="mt-1.5 flex items-center gap-2"><input type="text" inputMode="decimal" value={weight} onChange={(event) => { setWeight(event.target.value); if (weightError) setWeightError(""); }} aria-invalid={Boolean(weightError)} aria-describedby={weightError ? weightErrorId : undefined} className="min-h-11 min-w-0 flex-1 rounded-xl border border-black/10 bg-[#faf8f5] px-3 text-left text-sm font-bold outline-none transition focus:border-[#dc3b34] focus:ring-2 focus:ring-red-500/10" dir="ltr" /><span className="shrink-0">کیلوگرم</span></span></label> : null}{weightError ? <p id={weightErrorId} role="alert" className="mt-2 text-xs font-bold leading-5 text-red-700">{weightError}</p> : null}{isAvailable ? <button type="button" onClick={handleAdd} aria-label={`افزودن ${name} به سبد خرید`} className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#dc3b34] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#c8322c] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dc3b34] focus-visible:ring-offset-2 active:translate-y-0"><Icon name="basket" className="size-5" />افزودن به سبد خرید</button> : <button type="button" disabled className="mt-3 flex min-h-11 w-full cursor-not-allowed items-center justify-center rounded-xl bg-zinc-200 px-4 py-2.5 text-sm font-bold text-zinc-500" aria-label={`${name} به اتمام رسیده است`}>اتمام موجودی</button>}</div>
   </article>;
+}
+
+function validateWeight(value, wholeChicken) {
+  const normalized = String(value).trim().replace(",", ".");
+  if (!/^(?:0|[1-9]\d{0,4})(?:\.\d{1,3})?$/.test(normalized)) {
+    return { error: "وزن باید عددی مثبت با حداکثر سه رقم اعشار باشد." };
+  }
+
+  const weight = Number(normalized);
+  if (!Number.isFinite(weight) || weight <= 0 || weight > 10000) {
+    return { error: "وزن باید عددی مثبت و حداکثر ۱۰٬۰۰۰ کیلوگرم باشد." };
+  }
+  if (wholeChicken && weight < 1.5) {
+    return { error: "حداقل وزن مرغ کامل ۱.۵۰۰ کیلوگرم است." };
+  }
+  return { value: Math.round(weight * 1000) / 1000 };
 }
 
 function ProductSkeletons() {
