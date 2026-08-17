@@ -57,7 +57,7 @@ export default function Home() {
 
           <div className="relative order-1 mx-auto w-full max-w-[520px] lg:order-2">
             <div className="hero-image group relative aspect-[4/3.65] overflow-hidden rounded-[2rem] border border-white/10 sm:rounded-[2.5rem] lg:aspect-[4/4.6]">
-              <Image src="/images/hero.webp" alt="منتخبی از گوشت تازه و باکیفیت سرزمین گوشت" fill preload sizes="(max-width: 1023px) 100vw, 520px" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]" />
+              <Image src="/images/hero.webp" alt="منتخبی از گوشت تازه و باکیفیت سرزمین گوشت" fill preload quality={90} sizes="(max-width: 1023px) 100vw, 520px" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             </div>
             <div className="absolute -bottom-5 -right-2 flex items-center gap-3 rounded-2xl border border-black/5 bg-white p-3.5 text-[#17120f] shadow-2xl sm:-right-8 sm:p-4">
